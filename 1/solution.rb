@@ -1,4 +1,4 @@
-masses = File.open('one/input.txt').map do |line|
+masses = File.open('1/input.txt').map do |line|
   line.chomp.to_f
 end
 
