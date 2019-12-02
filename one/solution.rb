@@ -12,12 +12,9 @@
 
 # What is the sum of the fuel requirements for all of the modules on your spacecraft?
 
-fuel = File.open('input.txt')
-        .map(&:chomp)
-        .map(&:to_f)
-        .map do |mass|
-          (mass / 3.0).floor - 2
-        end
-        .reduce(&:+)
+fuel = File.open('one/input.txt').map do |line|
+  (line.chomp.to_f / 3).floor - 2
+end.reduce(&:+)
+
 
 print "The fuel requirement is #{fuel}."
