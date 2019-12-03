@@ -8,16 +8,18 @@ def point_from_direction(start, dir)
 
   case direction
   when 'U'
-    return [start.first, start.last - distance]
+    new_point = [start.first, start.last - distance]
   when 'D'
-    return [start.first, start.last + distance]
+    new_point = [start.first, start.last + distance]
   when 'L'
-    return [start.first - distance, start.last]
+    new_point = [start.first - distance, start.last]
   when 'R'
-    return [start.first + distance, start.last]
+    new_point = [start.first + distance, start.last]
   else
     raise "Found invalid direction: #{direction}"
   end
+
+  return new_point, distance
 end
 
 def points_in_between(start, finish)
@@ -51,16 +53,32 @@ end
 def all_wire_points(wire)
   wire = wire.dup
   curr_point = [0, 0]
+  total_distance = 0
 
   wire_points = []
+  wire_distances = {}
 
   while wire.length > 0
-    new_point = point_from_direction(curr_point, wire.shift)
-    wire_points.concat(points_in_between(curr_point, new_point))
+    new_point, distance = point_from_direction(curr_point, wire.shift)
+    points_in_between = points_in_between(curr_point, new_point)
+    wire_points.concat(points_in_between)
+
+    points_in_between.each do |point|
+      if (wire_distances[point] && total_distance < wire_distances[point] || !wire_distances[point])
+        wire_distances[point] = total_distance
+      end
+
+      total_distance += 1
+    end
+
     curr_point = new_point
   end
 
-  wire_points.uniq
+  return wire_points.uniq, wire_distances
+end
+
+def all_wire_distances
+
 end
 
 def min_manhattan_distance(central_point, points)
@@ -76,13 +94,27 @@ def min_manhattan_distance(central_point, points)
   min_manhattan_distance
 end
 
-input = File.read('3/input.txt').chomp
+def min_wire_distance(first_wire_distances, second_wire_distances, points)
+  min_wire_distance = Float::INFINITY
+
+  points.each do |point|
+    distance = first_wire_distances[point] + second_wire_distances[point]
+    if distance < min_wire_distance && distance != 0
+      min_wire_distance = distance
+    end
+  end
+
+  min_wire_distance
+end
+
+input = File.read('3/test_input.txt').chomp
 first_wire, second_wire = input.split("\n").map { |wire_str| wire_str.split(',') }
 
-first_wire_points = all_wire_points(first_wire)
-second_wire_points = all_wire_points(second_wire)
+first_wire_points, first_wire_distances = all_wire_points(first_wire)
+second_wire_points, second_wire_distances = all_wire_points(second_wire)
 
 common_points = first_wire_points & second_wire_points
 
 puts "The solution to part one is: #{min_manhattan_distance([0, 0], common_points)}"
+puts "The solution to part two is: #{min_wire_distance(first_wire_distances, second_wire_distances, common_points)}"
 
