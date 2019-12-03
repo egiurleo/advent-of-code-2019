@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rubyvis (0.7.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rubyvis
+
+BUNDLED WITH
+   1.17.2
