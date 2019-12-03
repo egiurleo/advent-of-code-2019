@@ -35,7 +35,7 @@ x2 = pv.Scale.linear(data2, lambda {|d| d.x}).range(0, w)
 y2 = pv.Scale.linear(data2, lambda {|d| d.y}).range(0, h);
 
 #/* The root panel. */
-vis = pv.Panel.new()
+vis1 = pv.Panel.new()
   .width(w)
   .height(h)
   .bottom(20)
@@ -43,7 +43,7 @@ vis = pv.Panel.new()
   .right(10)
   .top(5)
 
-vis.add(pv.Line).
+vis1.add(pv.Line).
   data(data1).
   line_width(5).
   left(lambda {|d| x1.scale(d.x)}).
@@ -52,7 +52,21 @@ vis.add(pv.Line).
     stroke_style('red').
     line_width(1)
 
-vis.add(pv.Line).
+vis1.add(pv.Label)
+  .left(75)
+  .top(16)
+  .textAlign("center")
+  .text("noun value vs. first half of result");
+
+vis2 = pv.Panel.new()
+  .width(w)
+  .height(h)
+  .bottom(20)
+  .left(20)
+  .right(10)
+  .top(5)
+
+vis2.add(pv.Line).
   data(data2).
   line_width(5).
   left(lambda {|d| x2.scale(d.x)}).
@@ -61,8 +75,16 @@ vis.add(pv.Line).
     stroke_style('black').
     line_width(1)
 
-vis.render();
+vis2.add(pv.Label)
+  .left(75)
+  .top(16)
+  .textAlign("center")
+  .text("verb value vs. second half of result");
+
+vis1.render();
+vis2.render;
 
 open('2/graph.html', 'w') { |f|
-  f.puts vis.to_svg
+  f.puts vis1.to_svg
+  f.puts vis2.to_svg
 }

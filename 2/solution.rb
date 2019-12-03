@@ -15,3 +15,4 @@
 require_relative './shared.rb'
 
 puts "The solution to part one is: #{run_intcode(12, 2)}"
+puts "The solution to part two is: 7733. To confirm, here's the result of the Intcode program with the input 77, 33: #{run_intcode(77, 33)}"
