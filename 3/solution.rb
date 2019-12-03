@@ -64,13 +64,13 @@ def all_wire_points(wire)
     wire_points.concat(points_in_between)
 
     points_in_between.each do |point|
-      if (wire_distances[point] && total_distance < wire_distances[point] || !wire_distances[point])
-        wire_distances[point] = total_distance
+      point_distance = total_distance + manhattan_distance(curr_point, point)
+      if (wire_distances[point] && point_distance < wire_distances[point] || !wire_distances[point])
+        wire_distances[point] = point_distance
       end
-
-      total_distance += 1
     end
 
+    total_distance += manhattan_distance(curr_point, new_point)
     curr_point = new_point
   end
 
@@ -107,7 +107,7 @@ def min_wire_distance(first_wire_distances, second_wire_distances, points)
   min_wire_distance
 end
 
-input = File.read('3/test_input.txt').chomp
+input = File.read('3/input.txt').chomp
 first_wire, second_wire = input.split("\n").map { |wire_str| wire_str.split(',') }
 
 first_wire_points, first_wire_distances = all_wire_points(first_wire)
