@@ -8,18 +8,16 @@ def point_from_direction(start, dir)
 
   case direction
   when 'U'
-    new_point = [start.first, start.last - distance]
+    return [start.first, start.last - distance]
   when 'D'
-    new_point = [start.first, start.last + distance]
+    return [start.first, start.last + distance]
   when 'L'
-    new_point = [start.first - distance, start.last]
+    return [start.first - distance, start.last]
   when 'R'
-    new_point = [start.first + distance, start.last]
+    return [start.first + distance, start.last]
   else
     raise "Found invalid direction: #{direction}"
   end
-
-  return new_point, distance
 end
 
 def points_in_between(start, finish)
@@ -53,20 +51,35 @@ end
 def all_wire_points(wire)
   wire = wire.dup
   curr_point = [0, 0]
-  total_distance = 0
 
   wire_points = []
-  wire_distances = {}
 
   while wire.length > 0
-    new_point, distance = point_from_direction(curr_point, wire.shift)
+    new_point = point_from_direction(curr_point, wire.shift)
     points_in_between = points_in_between(curr_point, new_point)
     wire_points.concat(points_in_between)
 
+    curr_point = new_point
+  end
+
+  return wire_points.uniq
+end
+
+def all_wire_distances(wire)
+  wire = wire.dup
+  curr_point = [0, 0]
+
+  distances = {}
+  total_distance = 0
+
+  while wire.length > 0
+    new_point = point_from_direction(curr_point, wire.shift)
+    points_in_between = points_in_between(curr_point, new_point)
+
     points_in_between.each do |point|
       point_distance = total_distance + manhattan_distance(curr_point, point)
-      if (wire_distances[point] && point_distance < wire_distances[point] || !wire_distances[point])
-        wire_distances[point] = point_distance
+      if (distances[point] && point_distance < distances[point]) || !distances[point]
+        distances[point] = point_distance
       end
     end
 
@@ -74,11 +87,7 @@ def all_wire_points(wire)
     curr_point = new_point
   end
 
-  return wire_points.uniq, wire_distances
-end
-
-def all_wire_distances
-
+  distances
 end
 
 def min_manhattan_distance(central_point, points)
@@ -110,11 +119,15 @@ end
 input = File.read('3/input.txt').chomp
 first_wire, second_wire = input.split("\n").map { |wire_str| wire_str.split(',') }
 
-first_wire_points, first_wire_distances = all_wire_points(first_wire)
-second_wire_points, second_wire_distances = all_wire_points(second_wire)
+first_wire_points = all_wire_points(first_wire)
+second_wire_points = all_wire_points(second_wire)
 
 common_points = first_wire_points & second_wire_points
 
 puts "The solution to part one is: #{min_manhattan_distance([0, 0], common_points)}"
+
+first_wire_distances = all_wire_distances(first_wire)
+second_wire_distances = all_wire_distances(second_wire)
+
 puts "The solution to part two is: #{min_wire_distance(first_wire_distances, second_wire_distances, common_points)}"
 
