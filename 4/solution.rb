@@ -4,46 +4,41 @@ low, high = input.split('-').map(&:to_i)
 
 def adjacent_digits?(num)
   num_str = num.to_s
-  num_arr = num_str.split('')
+  digits = num_str.split('')
 
-  for i in (0..num_arr.length - 2) do
-    return true if num_arr[i] == num_arr[i + 1]
+  digits.each_cons(2).any? do |dig1, dig2|
+    dig1 == dig2
   end
-
-  false
 end
 
 def two_adjacent_digits?(num)
   num_str = num.to_s
-  num_arr = num_str.split('')
+  digits = num_str.split('')
 
-  num_matching = 0
-  num_to_match = nil
-  for i in (0..num_arr.length) do
-    if num_arr[i] == num_arr[i - 1]
+  num_matching = 1
+  num_to_match = digits.first
+
+  digits.each_cons(2).each do |dig1, dig2|
+    if dig1 == dig2
       num_matching += 1
     else
       return true if num_matching == 2
 
       num_matching = 1
-      num_to_match = num_arr[i]
+      num_to_match = dig1
     end
-
-    next
   end
 
-  false
+  num_matching == 2
 end
 
 def ascending_digits?(num)
   num_str = num.to_s
-  num_arr = num_str.split('').map(&:to_i)
+  digits = num_str.split('').map(&:to_i)
 
-  for i in (0..num_arr.length - 2) do
-    return false if num_arr[i] > num_arr[i + 1]
+  digits.each_cons(2).all? do |dig1, dig2|
+    dig1 <= dig2
   end
-
-  true
 end
 
 ###
