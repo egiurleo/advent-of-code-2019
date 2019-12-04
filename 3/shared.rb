@@ -103,8 +103,8 @@ end
 
 # Given two hashes representing the distance from the central point
 # for every point in a wire, as well as a list of points, find the
-# minimum distance from the central point to any of the points along
-# the two wires.
+# point with the minimum combined distance from the start of the
+# two wires.
 def min_wire_distance(first_wire_distances, second_wire_distances, points)
   min_wire_distance = Float::INFINITY
 

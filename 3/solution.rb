@@ -1,5 +1,4 @@
 require_relative './shared'
-require 'byebug'
 
 input = File.read('3/input.txt').chomp
 first_wire, second_wire = input.split("\n").map { |wire_str| wire_str.split(',') }
