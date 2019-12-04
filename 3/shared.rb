@@ -44,7 +44,7 @@ def points_in_between(start, finish)
   end
 
   if start.last == finish.last
-    return (start.first..finish.first).to_a.map do |x|
+    return (finish.first..start.first).to_a.map do |x|
       [x, start.last]
     end
   end
@@ -53,23 +53,6 @@ end
 # Calculate the Manhattan distance between two points.
 def manhattan_distance(start, finish)
   (start.first - finish.first).abs + (start.last - finish.last).abs
-end
-
-def all_wire_points(wire)
-  wire = wire.dup
-  curr_point = [0, 0]
-
-  wire_points = []
-
-  while wire.length > 0
-    new_point = point_from_direction(curr_point, wire.shift)
-    points_in_between = points_in_between(curr_point, new_point)
-    wire_points.concat(points_in_between)
-
-    curr_point = new_point
-  end
-
-  return wire_points.uniq
 end
 
 # Given a wire, which is an array of directions in the format
