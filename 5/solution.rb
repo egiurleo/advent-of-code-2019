@@ -1,8 +1,14 @@
 
 class Operation
-  def initialize(memory, instruction_address)
+  def initialize(memory, instruction_address, modes: [0, 0])
     @memory = memory
     @instruction_address = instruction_address
+
+    param1 = @memory[@instruction_address + 1]
+    param2 = @memory[@instruction_address + 2]
+
+    @param1 = modes.first == 0 ? @memory[param1] : param1
+    @param2 = modes.last == 0 ? @memory[param2] : param2
   end
 
   def perform
@@ -11,75 +17,62 @@ class Operation
 end
 
 class Addition < Operation
-  def initialize(memory, instruction_address, modes: [0, 0])
-    super(memory, instruction_address)
+  def initialize(memory, instruction_address, modes)
+    super(memory, instruction_address, modes)
 
-    param1 = @memory[@instruction_address + 1]
-    param2 = @memory[@instruction_address + 2]
-
-    @addend1 = modes.first == 0 ? @memory[param1] : param1
-    @addend2 = modes.last == 0 ? @memory[param2] : param2
-
-    @result_address = memory[@instruction_address + 3]
+    @param3 = memory[@instruction_address + 3]
   end
 
   def perform
-    @memory[@result_address] = @addend1 + @addend2
+    @memory[@param3] = @param1 + @param2
   end
 
-  def skip
-    4
+  def next_instruction
+    @instruction_address + 4
   end
 end
 
 class Multiplication < Operation
-  def initialize(memory, instruction_address, modes: [0, 0])
-    super(memory, instruction_address)
+  def initialize(memory, instruction_address, modes)
+    super(memory, instruction_address, modes)
 
-    param1 = @memory[@instruction_address + 1]
-    param2 = @memory[@instruction_address + 2]
-
-    @factor1 = modes.first == 0 ? @memory[param1] : param1
-    @factor2 = modes.last == 0 ? @memory[param2] : param2
-
-    @result_address = @memory[@instruction_address + 3]
+    @param3 = memory[@instruction_address + 3]
   end
 
   def perform
-    @memory[@result_address] = @factor1 * @factor2
+    @memory[@param3] = @param1 * @param2
   end
 
-  def skip
-    4
+  def next_instruction
+    @instruction_address + 4
   end
 end
 
 class Input < Operation
   def initialize(memory, instruction_address)
-    super(memory, instruction_address)
+    @memory = memory
+    @instruction_address = instruction_address
 
     @result_address = memory[@instruction_address + 1]
   end
 
   def perform
-    puts 'Operation expects input: '
+    print 'Operation expects input: '
 
     result = gets.to_i
 
-    # puts "Inputting #{result} at position #{@result_address}"
-    # puts "Previous value was: #{@memory[@result_address]}"
     @memory[@result_address] = result
-    # puts "New value is: #{@memory[@result_address]}"
   end
 
-  def skip
-    2
+  def next_instruction
+    @instruction_address + 2
   end
 end
 
 class Output < Operation
   def initialize(memory, instruction_address, mode: 0)
-    super(memory, instruction_address)
+    @memory = memory
+    @instruction_address = instruction_address
 
     param = @memory[@instruction_address + 1]
     @output = mode == 0 ? @memory[param] : param
@@ -89,8 +82,52 @@ class Output < Operation
     puts "Program output: #{@output}"
   end
 
-  def skip
-    2
+  def next_instruction
+    @instruction_address + 2
+  end
+end
+
+class JumpIfTrue < Operation
+  def next_instruction
+    @param1 == 0 ? @instruction_address + 3 : @param2
+  end
+end
+
+class JumpIfFalse < Operation
+  def next_instruction
+    @param1 == 0 ? @param2 : @instruction_address + 3
+  end
+end
+
+class LessThan < Operation
+  def initialize(memory, instruction_address, modes)
+    super(memory, instruction_address, modes)
+
+    @param3 = @memory[@instruction_address + 3]
+  end
+
+  def perform
+    @memory[@param3] = @param1 < @param2 ? 1 : 0
+  end
+
+  def next_instruction
+    @instruction_address + 4
+  end
+end
+
+class EqualTo < Operation
+  def initialize(memory, instruction_address, modes)
+    super(memory, instruction_address, modes)
+
+    @param3 = @memory[@instruction_address + 3]
+  end
+
+  def perform
+    @memory[@param3] = @param1 == @param2 ? 1 : 0
+  end
+
+  def next_instruction
+    @instruction_address + 4
   end
 end
 
@@ -129,20 +166,28 @@ while memory[position] != 99
   mode0 = 0 unless mode0
   mode1 = 0 unless mode1
 
-  case op
+  operation = case op
   when 1
-    operation = Addition.new(memory, position, modes: [mode0, mode1])
+    Addition.new(memory, position, modes: [mode0, mode1])
   when 2
-    operation = Multiplication.new(memory, position, modes: [mode0, mode1])
+    Multiplication.new(memory, position, modes: [mode0, mode1])
   when 3
-    operation = Input.new(memory, position)
+    Input.new(memory, position)
   when 4
-    operation = Output.new(memory, position, mode: mode0)
+    Output.new(memory, position, mode: mode0)
+  when 5
+    JumpIfTrue.new(memory, position, modes: [mode0, mode1])
+  when 6
+    JumpIfFalse.new(memory, position, modes: [mode0, mode1])
+  when 7
+    LessThan.new(memory, position, modes: [mode0, mode1])
+  when 8
+    EqualTo.new(memory, position, modes: [mode0, mode1])
   else
     raise "Unrecognized op code: #{op_arr.first}"
   end
 
   operation.perform
   # puts "memory: #{memory}"
-  position += operation.skip
+  position = operation.next_instruction
 end
