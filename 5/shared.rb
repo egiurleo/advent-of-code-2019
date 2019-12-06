@@ -7,6 +7,16 @@ class Operation
   def perform
     # TODO: implement
   end
+
+  private
+
+  def read(addr)
+    @memory[addr].to_i
+  end
+
+  def write(addr, val)
+    @memory[addr] = val.to_s
+  end
 end
 
 # ----- Operations that take three params -----
@@ -15,13 +25,13 @@ class ThreeParamOperation < Operation
   def initialize(memory, instruction_address, modes)
     super(memory, instruction_address, modes)
 
-    param1 = @memory[@instruction_address + 1]
-    param2 = @memory[@instruction_address + 2]
+    param1 = read(@instruction_address + 1)
+    param2 = @memory[@instruction_address + 2].to_i
 
-    @param1 = modes.first == 0 ? @memory[param1] : param1
-    @param2 = modes.last == 0 ? @memory[param2] : param2
+    @param1 = modes.first == 0 ? @memory[param1].to_i : param1
+    @param2 = modes.last == 0 ? @memory[param2].to_i : param2
 
-    @param3 = @memory[@instruction_address + 3]
+    @param3 = @memory[@instruction_address + 3].to_i
   end
 
   def next_instruction
@@ -31,13 +41,13 @@ end
 
 class Addition < ThreeParamOperation
   def perform
-    @memory[@param3] = @param1 + @param2
+    @memory[@param3] = (@param1 + @param2).to_s
   end
 end
 
 class Multiplication < ThreeParamOperation
   def perform
-    @memory[@param3] = @param1 * @param2
+    @memory[@param3] = (@param1 * @param2).to_s
   end
 end
 
@@ -55,13 +65,13 @@ end
 
 class LessThan < ThreeParamOperation
   def perform
-    @memory[@param3] = @param1 < @param2 ? 1 : 0
+    @memory[@param3] = @param1 < @param2 ? '1' : '0'
   end
 end
 
 class EqualTo < ThreeParamOperation
   def perform
-    @memory[@param3] = @param1 == @param2 ? 1 : 0
+    @memory[@param3] = @param1 == @param2 ? '1' : '0'
   end
 end
 
@@ -76,12 +86,13 @@ end
 class Input < OneParamOperation
   def initialize(memory, instruction_address, modes)
     super(memory, instruction_address, modes)
-    @param = @memory[@instruction_address + 1]
+
+    @param = @memory[@instruction_address + 1].to_i
   end
 
   def perform
     print 'Operation expects input: '
-    result = gets.to_i
+    result = gets.chomp
 
     @memory[@param] = result
   end
@@ -91,8 +102,8 @@ class Output < OneParamOperation
   def initialize(memory, instruction_address, modes)
     super(memory, instruction_address, modes)
 
-    param = @memory[@instruction_address + 1]
-    @param = modes.first == 0 ? @memory[param] : param
+    param = @memory[@instruction_address + 1].to_i
+    @param = modes.first == 0 ? @memory[param].to_i : param
   end
 
   def perform
