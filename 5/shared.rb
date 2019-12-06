@@ -26,12 +26,12 @@ class ThreeParamOperation < Operation
     super(memory, instruction_address, modes)
 
     param1 = read(@instruction_address + 1)
-    param2 = @memory[@instruction_address + 2].to_i
+    param2 = read(@instruction_address + 2)
 
-    @param1 = modes.first == 0 ? @memory[param1].to_i : param1
-    @param2 = modes.last == 0 ? @memory[param2].to_i : param2
+    @param1 = modes.first == 0 ? read(param1) : param1
+    @param2 = modes.last == 0 ? read(param2) : param2
 
-    @param3 = @memory[@instruction_address + 3].to_i
+    @param3 = read(@instruction_address + 3)
   end
 
   def next_instruction
@@ -41,13 +41,13 @@ end
 
 class Addition < ThreeParamOperation
   def perform
-    @memory[@param3] = (@param1 + @param2).to_s
+    write(@param3, @param1 + @param2)
   end
 end
 
 class Multiplication < ThreeParamOperation
   def perform
-    @memory[@param3] = (@param1 * @param2).to_s
+    write(@param3, @param1 * @param2)
   end
 end
 
@@ -65,13 +65,15 @@ end
 
 class LessThan < ThreeParamOperation
   def perform
-    @memory[@param3] = @param1 < @param2 ? '1' : '0'
+    val = @param1 < @param2 ? 1 : 0
+    write(@param3, val)
   end
 end
 
 class EqualTo < ThreeParamOperation
   def perform
-    @memory[@param3] = @param1 == @param2 ? '1' : '0'
+    val = @param1 == @param2 ? 1 : 0
+    write(@param3, val)
   end
 end
 
@@ -87,14 +89,14 @@ class Input < OneParamOperation
   def initialize(memory, instruction_address, modes)
     super(memory, instruction_address, modes)
 
-    @param = @memory[@instruction_address + 1].to_i
+    @param = read(@instruction_address + 1)
   end
 
   def perform
     print 'Operation expects input: '
     result = gets.chomp
 
-    @memory[@param] = result
+    write(@param, result)
   end
 end
 
@@ -102,8 +104,8 @@ class Output < OneParamOperation
   def initialize(memory, instruction_address, modes)
     super(memory, instruction_address, modes)
 
-    param = @memory[@instruction_address + 1].to_i
-    @param = modes.first == 0 ? @memory[param].to_i : param
+    param = read(@instruction_address + 1)
+    @param = modes.first == 0 ? read(param) : param
   end
 
   def perform
