@@ -1,5 +1,5 @@
 class Operation
-  def initialize(memory, instruction_address)
+  def initialize(memory, instruction_address, modes)
     @memory = memory
     @instruction_address = instruction_address
   end
@@ -12,8 +12,8 @@ end
 # ----- Operations that take three params -----
 
 class ThreeParamOperation < Operation
-  def initialize(memory, instruction_address, modes: [0, 0])
-    super(memory, instruction_address)
+  def initialize(memory, instruction_address, modes)
+    super(memory, instruction_address, modes)
 
     param1 = @memory[@instruction_address + 1]
     param2 = @memory[@instruction_address + 2]
@@ -74,8 +74,8 @@ class OneParamOperation < Operation
 end
 
 class Input < OneParamOperation
-  def initialize(memory, instruction_address)
-    super(memory, instruction_address)
+  def initialize(memory, instruction_address, modes)
+    super(memory, instruction_address, modes)
     @param = @memory[@instruction_address + 1]
   end
 
@@ -88,8 +88,8 @@ class Input < OneParamOperation
 end
 
 class Output < OneParamOperation
-  def initialize(memory, instruction_address, modes: [0])
-    super(memory, instruction_address)
+  def initialize(memory, instruction_address, modes)
+    super(memory, instruction_address, modes)
 
     param = @memory[@instruction_address + 1]
     @param = modes.first == 0 ? @memory[param] : param
