@@ -16,6 +16,7 @@ class Operation
 
   def write(addr, val)
     @memory[addr] = val.to_s
+    nil
   end
 end
 
@@ -117,6 +118,7 @@ end
 
 def run_program(memory, inputs)
   memory = memory.dup
+  output_signals = []
 
   position = 0
   while memory[position] != '99' do
@@ -140,15 +142,22 @@ def run_program(memory, inputs)
     raise "Unrecognized op code: #{op}" if op_class.nil?
 
     if op_class == Input
-      operation = op_class.new(memory, position, inputs.shift, [mode0.to_i, mode1.to_i])
+      input = inputs.shift
+
+      unless input
+        return output_signals.compact.map(&:to_i), false
+      end
+
+      operation = op_class.new(memory, position, input, [mode0.to_i, mode1.to_i])
     else
       operation = op_class.new(memory, position, [mode0.to_i, mode1.to_i])
     end
 
-    result = operation.perform
-
-    return result.to_i if result
-
+    output_signals << operation.perform
+    byebug if output_signals.include?('139629729')
+    byebug if output_signals.include?(139629729)
     position = operation.next_instruction
   end
+
+  return [output_signals.compact.map(&:to_i), true]
 end
