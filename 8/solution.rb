@@ -45,23 +45,23 @@ while pixels.length > 0
   layers << create_layer(pixels, layer_width, layer_height)
 end
 
-# smallest_num_zeros = Float::INFINITY
-# smallest_num_zeros_layer = nil
+smallest_num_zeros = Float::INFINITY
+smallest_num_zeros_layer = nil
 
-# layers.each.with_index do |layer, layer_num|
-#   num_zeros = num_digits(layer, 0)
-#   if num_zeros < smallest_num_zeros
-#     smallest_num_zeros = num_zeros
-#     smallest_num_zeros_layer = layer_num
-#   end
-# end
+layers.each.with_index do |layer, layer_num|
+  num_zeros = num_digits(layer, 0)
+  if num_zeros < smallest_num_zeros
+    smallest_num_zeros = num_zeros
+    smallest_num_zeros_layer = layer_num
+  end
+end
 
-# layer = layers[smallest_num_zeros_layer]
+layer = layers[smallest_num_zeros_layer]
 
-# num_ones = num_digits(layer, 1)
-# num_twos = num_digits(layer, 2)
+num_ones = num_digits(layer, 1)
+num_twos = num_digits(layer, 2)
 
-# puts "The solution to part one is: #{num_ones * num_twos}"
+puts "The solution to part one is: #{num_ones * num_twos}"
 
 final_image = Array.new(layer_height)
 final_image.each.with_index { |_, idx| final_image[idx] = Array.new(layer_width)}
@@ -72,4 +72,5 @@ for i in (0..final_image.length - 1).to_a do
   end
 end
 
+puts "The solution to part two is:"
 print_image(final_image)
