@@ -1,4 +1,4 @@
-require_relative './intcode.rb'
+require_relative './amplifier.rb'
 require 'byebug'
 
 def all_permutations(arr)
@@ -18,19 +18,16 @@ def all_permutations(arr)
   return permutations
 end
 
-memory = File.read('7/test_input.txt').chomp.split(',')
+memory = File.read('7/input.txt').chomp.split(',')
 
 # inputs = (0..4).to_a
-
 # max_thrust = 0
 
 # all_permutations(inputs).each do |input|
-#   second_input = 0
-#   5.times do |x|
-#     second_input = run_program(memory, [input[x], second_input])
-#   end
+#   amplifier = Amplifier.new(input, memory)
+#   result = amplifier.run_once
 
-#   max_thrust = second_input if second_input > max_thrust
+#   max_thrust = result if result > max_thrust
 # end
 
 # puts "The solution to part one is: #{max_thrust}"
@@ -38,13 +35,12 @@ memory = File.read('7/test_input.txt').chomp.split(',')
 inputs = (5..9).to_a
 max_thrust = 0
 
-input = [9, 8, 7, 6, 5]
+all_permutations(inputs).each do |input|
+# [[9, 8, 7, 6, 5]].each do |input|
+  amplifier = Amplifier.new(input, memory)
+  result = amplifier.feedback_loop
 
-result, halted = run_program(memory, [9, 0])
-i = 1
-while !halted do
-  result, halted = run_program(memory, [input[i]].concat(result))
-  i = i == 4 ? 0 : i + 1
+  max_thrust = result if result > max_thrust
 end
 
-puts "#{result}"
+puts "The solution to part two is: #{max_thrust}"

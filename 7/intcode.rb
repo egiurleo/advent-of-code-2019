@@ -116,48 +116,64 @@ class Output < OneParamOperation
   end
 end
 
-def run_program(memory, inputs)
-  memory = memory.dup
-  output_signals = []
+class Intcode
+  attr_reader :terminated
 
-  position = 0
-  while memory[position] != '99' do
-    op = memory[position]
-
-    op, _, mode0, mode1 = op.split('').reverse
-
-    op_classes = [
-      Addition,
-      Multiplication,
-      Input,
-      Output,
-      JumpIfTrue,
-      JumpIfFalse,
-      LessThan,
-      EqualTo
-    ]
-
-    op_class = op_classes[op.to_i - 1]
-
-    raise "Unrecognized op code: #{op}" if op_class.nil?
-
-    if op_class == Input
-      input = inputs.shift
-
-      unless input
-        return output_signals.compact.map(&:to_i), false
-      end
-
-      operation = op_class.new(memory, position, input, [mode0.to_i, mode1.to_i])
-    else
-      operation = op_class.new(memory, position, [mode0.to_i, mode1.to_i])
-    end
-
-    output_signals << operation.perform
-    byebug if output_signals.include?('139629729')
-    byebug if output_signals.include?(139629729)
-    position = operation.next_instruction
+  def initialize(memory)
+    @memory = memory.dup
+    @input = []
+    @output = []
+    @position = 0
+    @terminated = false
   end
 
-  return [output_signals.compact.map(&:to_i), true]
+  def input(input)
+    @input.concat(input)
+  end
+
+  def output
+    @output.shift
+  end
+
+  def run
+    while @memory[@position] != '99' do
+      op = @memory[@position]
+
+      op, _, mode0, mode1 = op.split('').reverse
+
+      op_classes = [
+        Addition,
+        Multiplication,
+        Input,
+        Output,
+        JumpIfTrue,
+        JumpIfFalse,
+        LessThan,
+        EqualTo
+      ]
+
+      op_class = op_classes[op.to_i - 1]
+
+      raise "Unrecognized op code: #{op}" if op_class.nil?
+
+      if op_class == Input
+        input = @input.shift
+
+        unless input
+          return
+        end
+
+        operation = op_class.new(@memory, @position, input, [mode0.to_i, mode1.to_i])
+      else
+        operation = op_class.new(@memory, @position, [mode0.to_i, mode1.to_i])
+      end
+
+      result = operation.perform
+
+      @output << result if result
+      @position = operation.next_instruction
+    end
+
+    @terminated = true if @memory[@position] == '99'
+  end
 end
