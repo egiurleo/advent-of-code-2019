@@ -28,9 +28,7 @@ class Node
   end
 
   def score
-    return @score = 0 if @orbit.nil?
-
-    @score ||= @orbit.score + 1
+    @score ||= @orbit.nil? ? 0 : @orbit.score + 1
   end
 end
 
@@ -64,13 +62,13 @@ def fewest_orbital_transfers(current_node, goal_node)
     return 0
   end
 
-  queue = [current_node.orbit].concat(current_node.orbiters).compact.filter{ |node| !node.seen }
+  stack = [current_node.orbit].concat(current_node.orbiters).compact.filter{ |node| !node.seen }
 
-  if queue.empty?
+  if stack.empty?
     return Float::INFINITY
   end
 
-  result = queue.map { |node| fewest_orbital_transfers(node, goal_node) + 1 }.min
+  result = stack.map { |node| fewest_orbital_transfers(node, goal_node) + 1 }.min
 
   return result
 end
