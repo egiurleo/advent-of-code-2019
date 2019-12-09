@@ -1,0 +1,44 @@
+109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99
+
+1.
+  9 ==> adjust relative base
+  1 ==> param1 in value mode (1)
+
+  relative base = 1
+
+  109,1,|204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99
+
+2.
+  4 ==> output
+  2 ==> param1 in relative mode (109)
+
+  outputs 109
+
+  109,1,204,-1,|1001,100,1,100,1008,100,16,101,1006,101,0,99
+
+3.
+  1 ==> addition
+  0 ==> param1 in position mode (0)
+  1 ==> param2 in value mode (1)
+  100 => writes to position 100
+
+  109,1,204,-1,1001,100,1,100,|1008,100,16,101,1006,101,0,99 ... 1 (position 100)
+
+4.
+  8 ==> equal to
+  0 ==> param1 in position mode (1)
+  1 ==> param2 in value mode (16)
+  101 ==> write 0 to position 101
+
+  109,1,204,-1,1001,100,1,100,1008,100,16,101,|1006,101,0,99 ... 1, 0 (position 100)
+
+5.
+  6 ==> jump if false
+  0 ==> param 1 in position mode (0)
+  1 ==> param 2 in value mode (0)
+  JUMP to param2 (0)
+
+  |109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99 ... 1, 0 (position 100)
+
+6.
+  9 ==>
