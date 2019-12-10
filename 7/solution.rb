@@ -20,27 +20,21 @@ end
 
 memory = File.read('7/input.txt').chomp.split(',')
 
-# inputs = (0..4).to_a
-# max_thrust = 0
+part_one_inputs = (0..4).to_a
+part_one_solution = all_permutations(part_one_inputs)
+                      .map do |input|
+                        amplifier = Amplifier.new(input, memory)
+                        amplifier.run_once
+                      end.max
 
-# all_permutations(inputs).each do |input|
-#   amplifier = Amplifier.new(input, memory)
-#   result = amplifier.run_once
+puts "The solution to part one is: #{part_one_solution}"
 
-#   max_thrust = result if result > max_thrust
-# end
+part_two_inputs = (5..9).to_a
 
-# puts "The solution to part one is: #{max_thrust}"
+part_two_solution = all_permutations(part_two_inputs)
+                      .map do |input|
+                        amplifier = Amplifier.new(input, memory)
+                        amplifier.feedback_loop
+                      end.max
 
-inputs = (5..9).to_a
-max_thrust = 0
-
-all_permutations(inputs).each do |input|
-# [[9, 8, 7, 6, 5]].each do |input|
-  amplifier = Amplifier.new(input, memory)
-  result = amplifier.feedback_loop
-
-  max_thrust = result if result > max_thrust
-end
-
-puts "The solution to part two is: #{max_thrust}"
+puts "The solution to part two is: #{part_two_solution}"

@@ -10,14 +10,16 @@ class Amplifier
       Intcode.new(memory)
     ]
 
-    @program_code = program_code
+    program_code.each.with_index do |code, idx|
+      @programs[idx].input([code])
+    end
   end
 
   def run_once
     input = 0
 
     @programs.each.with_index do |program, idx|
-      program.input([@program_code[idx], input])
+      program.input([input])
       program.run
       input = program.output
     end
@@ -26,10 +28,6 @@ class Amplifier
   end
 
   def feedback_loop
-    @program_code.each.with_index do |code, idx|
-      @programs[idx].input([code])
-    end
-
     i = 0
     input = 0
     program = @programs.first
@@ -40,7 +38,7 @@ class Amplifier
       program.run
       input = program.output
 
-      i = i == 4 ? 0 : i + 1
+      i = i == @programs.length - 1 ? 0 : i + 1
       program = @programs[i]
     end
 

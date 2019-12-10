@@ -27,7 +27,7 @@ end
 def print_image(image)
   image.each do |row|
     img_row = row.map do |cell|
-      cell == 0 ? ' ' : '0'
+      cell == 0 ? ' ' : '@'
     end
 
     puts img_row.join(' ')

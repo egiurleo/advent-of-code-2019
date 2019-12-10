@@ -95,9 +95,6 @@ class Input < OneParamOperation
   end
 
   def perform
-    # print "Operation expects input: #{@input}"
-    # result = gets.chomp
-
     write(@param, @input)
   end
 end
@@ -112,7 +109,6 @@ class Output < OneParamOperation
 
   def perform
     return @param
-    # puts "Program output: #{@param}"
   end
 end
 
@@ -136,7 +132,7 @@ class Intcode
   end
 
   def run
-    while @memory[@position] != '99' do
+    while !@terminated = @memory[@position] == '99' do
       op = @memory[@position]
 
       op, _, mode0, mode1 = op.split('').reverse
@@ -173,7 +169,5 @@ class Intcode
       @output << result if result
       @position = operation.next_instruction
     end
-
-    @terminated = true if @memory[@position] == '99'
   end
 end
