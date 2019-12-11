@@ -11,7 +11,7 @@ class Asteroid
     delta_x = asteroid.x - x
     delta_y = asteroid.y - y
 
-    if delta_x > 0 || delta_x == 0 && delta_y > 0
+    if delta_x > 0 || delta_x == 0 && delta_y < 0
       return :positive
     else
       return :negative
@@ -28,6 +28,16 @@ class Asteroid
 
     [slope, intercept]
   end
+
+  def angle_to(asteroid)
+    base = ((180.0/Math::PI) * Math.atan((asteroid.y - y)/(asteroid.x - x)))
+
+    if direction_to(asteroid) == :positive
+      return 90 + base
+    else
+      return 270 + base
+    end
+  end
 end
 
 asteroids = []
@@ -40,48 +50,62 @@ File.open('10/input.txt').each.with_index do |line, y|
   end
 end
 
-
 asteroids_in_line_of_sight = {}
 
 asteroids.each do |asteroid1|
-  lines = {}
+  angles = {}
 
   asteroids.each do |asteroid2|
     next if asteroid1 == asteroid2
 
-    line = asteroid1.line_to(asteroid2)
-
-    lines[line] ||= {
-      positive: {
-        distance: Float::INFINITY,
-        asteroid: nil
-      },
-      negative: {
-        distance: Float::INFINITY,
-        asteroid: nil
-      }
-    }
-
-    direction = asteroid1.direction_to(asteroid2)
-    distance = asteroid1.distance_to(asteroid2)
-
-    if lines[line][direction][:asteroid] == nil ||
-      lines[line][direction][:distance] > distance
-
-      lines[line][direction][:asteroid] = asteroid2
-      lines[line][direction][:distance] = distance
-    end
+    angle = asteroid1.angle_to(asteroid2)
+    angles[angle] ||= []
+    angles[angle] << asteroid2
   end
 
-  num_asteroids = lines.map do |_, line|
-    [line[:positive][:asteroid], line[:negative][:asteroid]]
-  end.flatten.compact.uniq.count
-
-  asteroids_in_line_of_sight[asteroid1] = num_asteroids
+  asteroids_in_line_of_sight[asteroid1] = angles.length
 end
 
-max = asteroids_in_line_of_sight.map do |asteroid, num|
-  num
-end.max
+max_num_asteroids = -1 * Float::INFINITY
+asteroid = nil
 
-puts "The solution to part one is: #{max}"
+asteroids_in_line_of_sight.each do |a, num|
+  if num > max_num_asteroids
+    max_num_asteroids = num
+    asteroid = a
+  end
+end
+
+puts "The solution to part one is: #{max_num_asteroids}"
+
+angles = {}
+
+asteroids.each do |asteroid2|
+  next if asteroid == asteroid2
+
+  angle = asteroid.angle_to(asteroid2)
+
+  angles[angle] ||= []
+  angles[angle] << asteroid2
+end
+
+asteroids_by_angle = angles.sort.map do |_, asteroids|
+  asteroids.sort_by { |asteroid2| asteroid.distance_to(asteroid2) }
+end
+
+asteroids_in_order = []
+while asteroids_by_angle.length > 0 do
+  asteroids_by_angle.each do |as|
+    asteroids_in_order << as.shift
+  end
+
+  asteroids_by_angle = asteroids_by_angle.select { |as| !as.empty? }
+end
+
+# asteroids_to_print = asteroids_in_order.map { |a| [a.x, a.y, asteroid.angle_to(a)] }
+# asteroids_to_print.each.with_index do |atp, idx| puts "#{idx + 1}. #{atp.inspect}" end
+
+solution = asteroids_in_order[199]
+byebug
+puts "The solution to part 2 is: #{(solution.x * 100) + solution.y }"
+
