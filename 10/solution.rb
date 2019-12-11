@@ -74,9 +74,6 @@ while asteroids_by_angle.length > 0 do
   asteroids_by_angle = asteroids_by_angle.select { |as| !as.empty? }
 end
 
-# asteroids_to_print = asteroids_in_order.map { |a| [a.x, a.y, asteroid.angle_to(a)] }
-# asteroids_to_print.each.with_index do |atp, idx| puts "#{idx + 1}. #{atp.inspect}" end
-
 solution = asteroids_in_order[199]
 puts "The solution to part 2 is: #{(solution.x * 100) + solution.y }"
 
