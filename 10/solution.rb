@@ -1,46 +1,18 @@
 require 'byebug'
-
-class Asteroid
-  attr_reader :x, :y
-  def initialize(x, y)
-    @x = x.to_f
-    @y = y.to_f
-  end
-
-  def direction_to(asteroid)
-    delta_x = asteroid.x - x
-    delta_y = asteroid.y - y
-
-    if delta_x > 0 || delta_x == 0 && delta_y < 0
-      return :positive
-    else
-      return :negative
-    end
-  end
-
-  def distance_to(asteroid)
-    return Math.sqrt((asteroid.x - x)**2 + (asteroid.y - y)**2)
-  end
-
-  def line_to(asteroid)
-    slope = ((asteroid.y - y)/(asteroid.x - x))
-    intercept = y - (slope * x)
-
-    [slope, intercept]
-  end
-
-  def angle_to(asteroid)
-    base = ((180.0/Math::PI) * Math.atan((asteroid.y - y)/(asteroid.x - x)))
-
-    if direction_to(asteroid) == :positive
-      return 90 + base
-    else
-      return 270 + base
-    end
-  end
-end
+require_relative './shared'
 
 asteroids = []
+
+# require '~/advent-of-code-2019/10/shared'
+# a0 = Asteroid.new(0, 0)
+# aup = Asteroid.new(0, -1)
+# adiag1 = Asteroid.new(1, -1)
+# aright = Asteroid.new(1, 0)
+# adiag2 = Asteroid.new(1, 1)
+# adown = Asteroid.new(0, 1)
+# adiag3 = Asteroid.new(-1, 1)
+# aleft = Asteroid.new(-1, 0)
+# adiag4 = Asteroid.new(-1, -1)
 
 File.open('10/input.txt').each.with_index do |line, y|
   cells = line.chomp.split('')
@@ -106,6 +78,5 @@ end
 # asteroids_to_print.each.with_index do |atp, idx| puts "#{idx + 1}. #{atp.inspect}" end
 
 solution = asteroids_in_order[199]
-byebug
 puts "The solution to part 2 is: #{(solution.x * 100) + solution.y }"
 
