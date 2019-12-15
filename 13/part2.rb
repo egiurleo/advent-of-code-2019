@@ -44,6 +44,7 @@ class Game
   end
 
   def read_char
+    # From: http://www.alecjacobson.com/weblog/?p=75
     begin
       # save previous state of stty
       old_state = `stty -g`
