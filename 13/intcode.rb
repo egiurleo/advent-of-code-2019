@@ -156,16 +156,15 @@ class AdjustRelativeBase < OneParamOperation
 end
 
 class Intcode
-  attr_reader :terminated
-  attr_reader :output
+  attr_reader :terminated, :memory, :position, :relative_base
 
-  def initialize(memory)
+  def initialize(memory, position: 0, relative_base: 0)
     @memory = memory.dup
     @input = []
     @output = []
-    @position = 0
+    @position = position
     @terminated = false
-    @relative_base = 0
+    @relative_base = relative_base.to_i || 0
   end
 
   def input(input)

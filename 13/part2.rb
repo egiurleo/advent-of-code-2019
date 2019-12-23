@@ -4,17 +4,19 @@ require 'byebug'
 memory = File.read('13/input.txt').chomp.split(',')
 
 class Game
-  HEIGHT = 30
-  WIDTH = 50
-  def initialize(memory, free: false)
+  attr_reader :program
+
+  HEIGHT = 23
+  WIDTH = 36
+  def initialize(memory, position: 0, free: false, relative_base: relative_base, grid: grid, score: score)
     memory = memory.dup
     memory[0] = '2' if free
 
-    @program = Intcode.new(memory)
+    @program = Intcode.new(memory, position: position, relative_base: relative_base)
     @program.input([0])
 
-    @grid = Array.new(HEIGHT) { |_| Array.new(WIDTH) }
-    @score = 0
+    @grid = grid || Array.new(HEIGHT) { |_| Array.new(WIDTH) }
+    @score = score
   end
 
   def draw
@@ -32,7 +34,7 @@ class Game
         when 3
           'T'
         when 4
-          '*'
+          "\e[35m*\e[0m"
         else
           raise "Invalid cell value: #{cell}"
         end
@@ -58,7 +60,7 @@ class Game
           c = c + STDIN.getc.chr
         }
         # wait just long enough for special keys to get swallowed
-        extra_thread.join(0.00001)
+        extra_thread.join(0.0001)
         # kill thread so not-so-long special keys don't wait on getc
         extra_thread.kill
       end
@@ -82,6 +84,7 @@ class Game
 
         if x == -1 && y == 0
           @score = item
+          puts "NEW SCORE: #{@score}"
         else
           @grid[y][x] = item
         end
@@ -97,25 +100,66 @@ class Game
           Thread.current[:output] = 1
         elsif input == "\e[D"
           Thread.current[:output] = -1
-        elsif input == "e"
-          Thread.current[:output] = "xxx"
+        elsif input == "s" || input == "e"
+          Thread.current[:output] = input
         end
       end
 
-      t = input_thread.join(0.25)
+      t = input_thread.join(0.35)
       input_thread.kill
       if t.nil?
         @program.input([0])
       else
         output = input_thread[:output]
-        break if output == "xxx"
+        break if output == "e"
+        save_game if output == "s"
 
         @program.input([output])
       end
     end
   end
+
+  def self.from_saved
+    position = nil
+    score = nil
+    memory = nil
+
+    lines = File.read('13/saved_game.txt').split("\n").map(&:chomp)
+
+    position = lines.shift.chomp
+    memory = lines.shift.chomp
+    relative_base = lines.shift.chomp
+    score = lines.shift.chomp.to_i
+
+    grid = lines.map { |line| line.split(',').map(&:to_i) }
+
+    self.new(memory.split(','), position: position.to_i, relative_base: relative_base, grid: grid, score: score)
+  end
+
+  private
+
+  def save_game
+    File.open('13/saved_game.txt', 'w') do |file|
+      file.write("#{@program.position}\n")
+      file.write("#{@program.memory.join(',')}\n")
+      file.write("#{@program.relative_base}\n")
+      file.write("#{@score}\n")
+
+      @grid.each do |row|
+        file.write("#{row.join(',')}\n")
+      end
+    end
+  end
 end
 
-game = Game.new(memory, free: true)
+print "Play from saved? [y/n] "
+input = gets.chomp
+
+if input == "n"
+  game = Game.new(memory, free: true)
+else
+  game = Game.from_saved
+end
+
 game.play
 
