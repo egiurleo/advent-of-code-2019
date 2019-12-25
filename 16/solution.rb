@@ -5,13 +5,38 @@ class FFT
   attr_reader :signal
 
   def initialize(signal, part_two: false)
-    @signal = signal
-    @patterns = build_patterns
-
     if part_two
-      @signal = @signal*1000
-      @offset = @signal.first(7).map(&:to_s).join('').to_i
+      @offset = signal.first(7).join('').to_i
+
+      signal_offset = @offset % signal.length
+      repetitions = 10000 - (@offset.to_f / signal.length.to_f).ceil
+      @signal = signal[signal_offset..] + signal * repetitions
+    else
+      @signal = signal
+      @patterns = build_patterns
     end
+  end
+
+  def response
+    @signal.first(8).join('')
+  end
+
+  def part_two_phase
+    new_signal = []
+
+    @signal.length.times do |idx|
+      sum = new_signal.last || 0
+      new_dig = (sum + @signal[-1 * (idx + 1)])%10
+
+      new_signal << new_dig
+    end
+
+    @signal = new_signal.reverse
+  end
+
+  def part_two_response
+    # @signal[@offset..@offset + 8].join('')
+    @signal.first(8).join('')
   end
 
   def phase
@@ -24,7 +49,7 @@ class FFT
         sig * pattern[j]
       end
 
-      new_signal << num.reduce(&:+).to_s.split('').last.to_i
+      new_signal << num.reduce(&:+) % 10
     end
 
     @signal = new_signal
@@ -49,7 +74,7 @@ class FFT
 end
 
 signal = File.read('16/input.txt').chomp
-# signal = '12345678'
+# signal = '03036732577212944063491565474664'
 
 fft = FFT.new(signal.split('').map(&:to_i))
 
@@ -57,4 +82,12 @@ fft = FFT.new(signal.split('').map(&:to_i))
   fft.phase
 end
 
-puts "The solution to part one is: #{fft.signal.first(8).join('')}"
+puts "The solution to part one is: #{fft.response}"
+
+fft2 = FFT.new(signal.split('').map(&:to_i), part_two: true)
+
+100.times do |i|
+  fft2.part_two_phase
+end
+
+puts "The solution to part two is: #{fft2.part_two_response}"
